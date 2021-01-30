@@ -38,6 +38,7 @@ h1=5;%计算密度和排斥力时使用的核半径
 Radius=0.25*ones(1,n);%假设行人的半径均为0.25m
 m_person=70;%行人的质量
 m_wall=500;%障碍物的质量
+a_max = 3; %行人的加速度上限
 v0=2; %行人的期望速度值
 u=2; %粘度，用于计算粒子之间摩擦力产生的加速度
 vx=zeros(1,n);%行人速度在x方向上的分量，初始时刻为0
@@ -124,13 +125,13 @@ for t=0:dt:T
     for i=1:n
 %       am_x(i)=(v0*e_x(i)-vx(i))/dt;
 %       am_y(i)=(v0*e_y(i)-vy(i))/dt;
-        am_x(i)=min((v0*e_x(i)-vx(i))/dt,3);%设置主动力加速度的上限
-        am_y(i)=min((v0*e_y(i)-vy(i))/dt,3);
+        am_x(i)=min((v0*e_x(i)-vx(i))/dt,a_max);%设置主动力加速度的上限
+        am_y(i)=min((v0*e_y(i)-vy(i))/dt,a_max);
     end
     
     %% 计算行人的位置
-    ax=am_x+ar_x+ae_x+av_x;%1行n列，t时刻各行人粒子x方向的合加速度
-    ay=am_y+ar_y+ae_y+av_y;%1行n列，t时刻各行人粒子y方向的合加速度
+    ax=min(a_max,am_x+ar_x+ae_x+av_x);%1行n列，t时刻各行人粒子x方向的合加速度
+    ay=min(a_max,am_y+ar_y+ae_y+av_y);%1行n列，t时刻各行人粒子y方向的合加速度
     old_vx=vx;%计算dt时间内的x方向平均速度
     old_vy=vy;%计算dt时间内的y方向平均速度
     vx=vx+ax*dt; %计算下一时刻的x方向速度
