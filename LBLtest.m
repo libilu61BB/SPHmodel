@@ -1,7 +1,7 @@
 clear;
 %% 设置障碍物坐标、行人坐标和出口坐标
 % 原设置orz
-%15m×15m正方形空间，出口宽度3m
+%15m×15m正方形空间，出口宽度2m
 % wall_x1=(15:-0.1:0);wall_y1=zeros(1,length(wall_x1));
 % wall_y2=(0:0.1:15);wall_x2=zeros(1,length(wall_y2));
 % wall_x3=(0:0.1:15);wall_y3=15*ones(1,length(wall_x3));
@@ -9,7 +9,13 @@ clear;
 % wall_y5=(6.5:-0.1:0);wall_x5=15*ones(1,length(wall_y5));
 % wall_x=[wall_x5 wall_x1 wall_x2 wall_x3 wall_x4];
 % wall_y=[wall_y5 wall_y1 wall_y2 wall_y3 wall_y4];
-% 啊 让我们来康康2m×100m的走廊呢~
+% person_x = 9*rand(1,100)+1;
+% person_y = 9*rand(1,100)+1;
+% exit_x = 20;
+% exit_y = 7.5;
+% end_x = 13;
+
+% % 啊 让我们来康康2m×100m的走廊呢~
 wall_x1 = (-100:0.1:100);
 wall_y1 = zeros(1, length(wall_x1));
 wall_x2 = (-100:0.1:100);
@@ -17,14 +23,13 @@ wall_y2 = 2 * ones(1, length(wall_x2));
 wall_x = [wall_x1 wall_x2];
 wall_y = [wall_y1 wall_y2];
 %在空间内随机生成点用于模拟行人
-person_x=zeros(1,100)+10;
+% person_x=zeros(1,100)+10;
 % person_y=2*rand(1,100);
-% person_x=-60*rand(1,100)+30;
+person_x=rand(1,100)+30;
 person_y=1.5*rand(1,100)+0.25;
 exit_x=1000;%出口x坐标
 exit_y=1;%出口y坐标
 end_x = 100;%行人消失的点
-% clear wall_x1 wall_x2 wall_x3 wall_x4 wall_x5 wall_y1 wall_y2 wall_y3 wall_y4 wall_y5;%清除冗余数据
 
 %% 计算坐标，绘制图像
 n=length(person_x);
@@ -46,8 +51,9 @@ dt=0.03;
 for t=0:dt:T
     %% 计算排斥力和挤压力产生的加速度
     [Rho_person,Rho_wall]=density(person_x,person_y,wall_x,wall_y,h1);%调用函数density计算t时刻的密度
-    [ar_x,ar_y]=a_repul(person_x,person_y,wall_x,wall_y,Rho_person ,Rho_wall,Radius,h1);%调用函数a_repul计算排斥力产生的加速度
-    [ae_x,ae_y]=a_extru(person_x,person_y,wall_x,wall_y,Rho_person,Rho_wall,Radius,h1);%调用函数a_extru计算挤压力产生的加速度
+%     [ar_x,ar_y]=a_repul(person_x,person_y,wall_x,wall_y,Rho_person ,Rho_wall,Radius,h1);%调用函数a_repul计算排斥力产生的加速度
+%     [ae_x,ae_y]=a_extru(person_x,person_y,wall_x,wall_y,Rho_person,Rho_wall,Radius,h1);%调用函数a_extru计算挤压力产生的加速度
+    [ar_x,ar_y,ae_x,ae_y] = ar_ae(person_x,person_y,wall_x,wall_y,Rho_person,Rho_wall,Radius,h1,m_person,m_wall); %计算加速度
     
     %% 计算摩擦力产生的加速度
     av_x=zeros(1,n);%初始化摩擦力产生的x方向加速度
@@ -158,8 +164,10 @@ for t=0:dt:T
     plot(wall_x1,wall_y1,'LineWidth',2,'Color','k');
     hold on;
     plot(wall_x2,wall_y2,'LineWidth',2,'Color','k');
+%     plot(wall_x,wall_y)
+%     hold on
     plot(person_x,person_y,'.')
-    axis([-1 101 -1 3]);%设置显示范围
+    axis([-1 100 -1 3]);%设置显示范围
     str_time=sprintf('疏散时间：%.2f',t);
     str_escape=sprintf('疏散人数：%.0f',sum_escape);
     text(max(xlim)*0.5-10,-0.5,str_time);
@@ -172,13 +180,13 @@ for t=0:dt:T
     end
     
     %% 制作GIF
-%     frame = getframe(gcf);
-%     im = frame2im(frame);
-%     [I,map] = rgb2ind(im,256);
-%     if t == 0
-%         imwrite(I,map,'疏散模拟.gif','gif','Loopcount',inf,'DelayTime',0.01);
-%     else
-%         imwrite(I,map,'疏散模拟.gif','gif','WriteMode','append','DelayTime',0.01);
-%     end
+    %     frame = getframe(gcf);
+    %     im = frame2im(frame);
+    %     [I,map] = rgb2ind(im,256);
+    %     if t == 0
+    %         imwrite(I,map,'疏散模拟.gif','gif','Loopcount',inf,'DelayTime',0.01);
+    %     else
+    %         imwrite(I,map,'疏散模拟.gif','gif','WriteMode','append','DelayTime',0.01);
+    %     end
 
 end            

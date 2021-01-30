@@ -9,6 +9,8 @@ function [Rho_P,Rho_W] = density(person_x,person_y,wall_x,wall_y,h)
 %   h 常数，核半径
 %   Rho_P 待输出的各行人粒子的密度
 %   Rho_W 待输出的各障碍粒子的密度
+%% 更新日志
+% 2021-1-30 行人密度计算公式改为前方行人密度之和的两倍
 %% 设置初始参数
 n=length(person_x);
 s=length(wall_x);
@@ -33,8 +35,8 @@ for i=1:n
             %continue;
         %end
         r_2=(person_x(i)-person_x(j))^2+(person_y(i)-person_y(j))^2;%计算两行人粒子之间的距离平方
-        if r_2<=h^2 %只计算核半径范围内其他行人粒子对粒子i密度的影响
-            Rho_P(i)=Rho_P(i)+m_person*(4/(pi*h^8))*(h^2-r_2)^3;
+        if   person_x(j)>=person_x(i) && r_2<=h^2 %只计算核半径范围内其他行人粒子对粒子i密度的影响
+            Rho_P(i)=Rho_P(i)+2*m_person*(4/(pi*h^8))*(h^2-r_2)^3;
         end
     end
     %if Rho_P(i)<1

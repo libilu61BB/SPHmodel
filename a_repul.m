@@ -9,6 +9,8 @@ function [ar_x,ar_y] = a_repul(person_x,person_y,wall_x,wall_y,Rho_person,Rho_wa
 %   ar_y 加速度在y方向上的分量
 %   Pr_person 排斥力对各行人粒子产生的压强
 %   Pr_wall 排斥力对各障碍粒子产生的压强
+%   Pe_person 挤压力对各行人粒子产生的压强
+%   Pe_wall 挤压力对各障碍粒子产生的压强
 %   Rho_person 各行人粒子的密度
 %   Rho_wall 各障碍粒子的密度
 %% 设置初始参数
@@ -44,24 +46,24 @@ for i=1:n
         end
         
         
-%         r=sqrt((person_x(i)-person_x(j))^2+(person_y(i)-person_y(j))^2); %两行人粒子之间的距离
-%         if r<=h1
-%             abs_ar=m_person*(Pr_person(i)/Rho_person(i)^2+Pr_person(j)/Rho_person(j)^2)*(3*(10*(h1-r)^2)/(pi*h1^5));
-%             %加速度的模长
-%             ar_x(i)=ar_x(i)+abs_ar*(person_x(i)-person_x(j))/r; %将加速度分解到x轴
-%             ar_y(i)=ar_y(i)+abs_ar*(person_y(i)-person_y(j))/r; %将加速度分解到y轴
-%         end
-        
-        
-        if person_x(j)>person_x(i)
-            r=sqrt((person_x(i)-person_x(j))^2+(person_y(i)-person_y(j))^2); %两行人粒子之间的距离
-            if r<=h1
-                abs_ar=m_person*(Pr_person(i)/Rho_person(i)^2+Pr_person(j)/Rho_person(j)^2)*(3*(10*(h1-r)^2)/(pi*h1^5));
-                %加速度的模长
-                ar_x(i)=ar_x(i)+abs_ar*(person_x(i)-person_x(j))/r; %将加速度分解到x轴
-                ar_y(i)=ar_y(i)+abs_ar*(person_y(i)-person_y(j))/r; %将加速度分解到y轴
-            end
+        r=sqrt((person_x(i)-person_x(j))^2+(person_y(i)-person_y(j))^2); %两行人粒子之间的距离
+        if r<=h1
+            abs_ar=m_person*(Pr_person(i)/Rho_person(i)^2+Pr_person(j)/Rho_person(j)^2)*(3*(10*(h1-r)^2)/(pi*h1^5));
+            %加速度的模长
+            ar_x(i)=ar_x(i)+abs_ar*(person_x(i)-person_x(j))/r; %将加速度分解到x轴
+            ar_y(i)=ar_y(i)+abs_ar*(person_y(i)-person_y(j))/r; %将加速度分解到y轴
         end
+        
+        
+%         if person_x(j)>person_x(i)
+%             r=sqrt((person_x(i)-person_x(j))^2+(person_y(i)-person_y(j))^2); %两行人粒子之间的距离
+%             if r<=h1
+%                 abs_ar=m_person*(Pr_person(i)/Rho_person(i)^2+Pr_person(j)/Rho_person(j)^2)*(3*(10*(h1-r)^2)/(pi*h1^5));
+%                 %加速度的模长
+%                 ar_x(i)=ar_x(i)+abs_ar*(person_x(i)-person_x(j))/r; %将加速度分解到x轴
+%                 ar_y(i)=ar_y(i)+abs_ar*(person_y(i)-person_y(j))/r; %将加速度分解到y轴
+%             end
+%         end
     end
     
     %-----------------计算行人与障碍之间的排斥力产生的加速度-----------------
