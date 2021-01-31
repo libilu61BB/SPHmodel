@@ -2,35 +2,35 @@ clear;
 %% 设置障碍物坐标、行人坐标和出口坐标
 % 原设置orz
 % 15m×15m正方形空间，出口宽度2m
-% wall_x1=(15:-0.1:0);wall_y1=zeros(1,length(wall_x1));
-% wall_y2=(0:0.1:15);wall_x2=zeros(1,length(wall_y2));
-% wall_x3=(0:0.1:15);wall_y3=15*ones(1,length(wall_x3));
-% wall_y4=(15:-0.1:8.5);wall_x4=15*ones(1,length(wall_y4));
-% wall_y5=(6.5:-0.1:0);wall_x5=15*ones(1,length(wall_y5));
-% wall_x=[wall_x5 wall_x1 wall_x2 wall_x3 wall_x4];
-% wall_y=[wall_y5 wall_y1 wall_y2 wall_y3 wall_y4];
-% person_x = 9*rand(1,100)+1;
-% person_y = 9*rand(1,100)+1;
-% exit_x = 20;
-% exit_y = 7.5;
-% end_x = 15;
+wall_x1=(15:-0.1:0);wall_y1=zeros(1,length(wall_x1));
+wall_y2=(0:0.1:15);wall_x2=zeros(1,length(wall_y2));
+wall_x3=(0:0.1:15);wall_y3=15*ones(1,length(wall_x3));
+wall_y4=(15:-0.1:8.5);wall_x4=15*ones(1,length(wall_y4));
+wall_y5=(6.5:-0.1:0);wall_x5=15*ones(1,length(wall_y5));
+wall_x=[wall_x5 wall_x1 wall_x2 wall_x3 wall_x4];
+wall_y=[wall_y5 wall_y1 wall_y2 wall_y3 wall_y4];
+person_x = 9*rand(1,100)+1;
+person_y = 9*rand(1,100)+1;
+exit_x = 20;
+exit_y = 7.5;
+end_x = 16;
 
 % 啊 让我们来康康2m×100m的走廊呢~
-wall_x1 = (-10:0.1:100);
-wall_y1 = zeros(1, length(wall_x1));
-wall_x2 = (-100:0.1:100);
-wall_y2 = 2 * ones(1, length(wall_x2));
-wall_x = [wall_x1 wall_x2];
-wall_y = [wall_y1 wall_y2];
-%在空间内随机生成点用于模拟行人
-% person_x=zeros(1,100)+10;
-% person_y=2*rand(1,100);
-% person_x=[0.3:0.3:30];
-% person_y=1.4*rand(1,100)+0.3;
-load personIni.mat
-exit_x=1000;%出口x坐标
-exit_y=1;%出口y坐标
-end_x = 100;%行人消失的点
+% wall_x1 = (-10:0.1:100);
+% wall_y1 = zeros(1, length(wall_x1));
+% wall_x2 = (-100:0.1:100);
+% wall_y2 = 2 * ones(1, length(wall_x2));
+% wall_x = [wall_x1 wall_x2];
+% wall_y = [wall_y1 wall_y2];
+% %在空间内随机生成点用于模拟行人
+% % person_x=zeros(1,100)+10;
+% % person_y=2*rand(1,100);
+% % person_x=[0.3:0.3:30];
+% % person_y=1.4*rand(1,100)+0.3;
+% load personIni.mat
+% exit_x=1000;%出口x坐标
+% exit_y=1;%出口y坐标
+% end_x = 100;%行人消失的点
 
 %% 计算坐标，绘制图像
 n=length(person_x);
@@ -126,18 +126,25 @@ for t=0:dt:T
     for i=1:n
 %       am_x(i)=(v0*e_x(i)-vx(i))/dt;
 %       am_y(i)=(v0*e_y(i)-vy(i))/dt;
-        am_x(i)=min((v0*e_x(i)-vx(i))/dt,a_max);%设置主动力加速度的上限
-        am_y(i)=min((v0*e_y(i)-vy(i))/dt,a_max);
+        am_x(i)=(v0*e_x(i)-vx(i))/dt;%设置主动力加速度的上限
+        am_y(i)=(v0*e_y(i)-vy(i))/dt;
     end
     
     %% 计算行人的位置
-    ax=min(a_max,am_x+ar_x+ae_x+av_x);%1行n列，t时刻各行人粒子x方向的合加速度
-    ay=min(a_max,am_y+ar_y+ae_y+av_y);%1行n列，t时刻各行人粒子y方向的合加速度
+    ax=am_x+ar_x+ae_x+av_x;%1行n列，t时刻各行人粒子x方向的合加速度
+    ay=am_y+ar_y+ae_y+av_y;%1行n列，t时刻各行人粒子y方向的合加速度
+    for i=1:n
+        ar = sqrt(ax(i)^2+ay(i)^2);
+        if ar>a_max
+            ax(i) = ax(i)*a_max/ar;
+            ay(i) = ay(i)*a_max/ar;
+        end
+    end   
     vx=vx+ax*dt; %计算下一时刻的x方向速度
-    vy=vy+ay*dt; %计算下一时刻的y方向速度
+    vy=vy+ay*dt; %计算下一时刻的y方向速度 
     for i=1:n %若下一时刻的速度大于v0，则将其缩小到v0
         vr=sqrt(vx(i)^2+vy(i)^2);
-        if vr>=v0
+        if vr>v0
             vx(i)=vx(i)*v0/vr;
             vy(i)=vy(i)*v0/vr;
         end
@@ -153,14 +160,18 @@ for t=0:dt:T
             person_y(i)=nan;
         end
     end
-    plot(wall_x1,wall_y1,'LineWidth',2,'Color','k');
-    hold on;
-    plot(wall_x2,wall_y2,'LineWidth',2,'Color','k');
-%     plot(wall_x,wall_y)
-%     hold on
+    
+%     plot(wall_x1,wall_y1,'LineWidth',2,'Color','k');
+%     hold on;
+%     plot(wall_x2,wall_y2,'LineWidth',2,'Color','k');
+%     plot(person_x,person_y,'.','MarkerSize',15)
+%     axis([-1 100 -1 3]);%设置显示范围:2×100m通道
+    
+    plot(wall_x,wall_y)
+    hold on
     plot(person_x,person_y,'.','MarkerSize',15)
-    axis([-1 100 -1 3]);%设置显示范围:2×100m通道
-%     axis([-1 16 -1 16]);%设置显示范围:15×15m房间
+    axis([-1 16 -1 16]);%设置显示范围:15×15m房间
+    
     str_time=sprintf('疏散时间：%.2f',t);
     str_escape=sprintf('疏散人数：%.0f',sum_escape);
     text(max(xlim)*0.5-10,-0.5,str_time);
