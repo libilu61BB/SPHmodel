@@ -39,11 +39,12 @@ h1=5;%计算密度和排斥力时使用的核半径
 Radius=0.25*ones(1,n);%假设行人的半径均为0.25m
 m_person=70;%行人的质量
 m_wall=500;%障碍物的质量
-a_max = 3; %行人的主动力加速度上限
+a_max = 5; %行人的主动力加速度上限
 v0=2; %行人的期望速度值
 u=2; %粘度，用于计算粒子之间摩擦力产生的加速度
 vx=zeros(1,n);%行人速度在x方向上的分量，初始时刻为0
 vy=zeros(1,n);%行人速度在y方向上的分量，初始时刻为0
+t1 = 0.25;%人的反应时间，s
 T=200; %模拟总时间
 sum_escape=0;%统计已疏散的人数
 P=1;%熟悉逃生路线的行人比例
@@ -126,20 +127,20 @@ for t=0:dt:T
     for i=1:n
 %       am_x(i)=(v0*e_x(i)-vx(i))/dt;
 %       am_y(i)=(v0*e_y(i)-vy(i))/dt;
-        am_x(i)=(v0*e_x(i)-vx(i))/dt;%设置主动力加速度的上限
-        am_y(i)=(v0*e_y(i)-vy(i))/dt;
+        am_x(i)=(v0*e_x(i)-vx(i))/t1;%设置主动力加速度的上限
+        am_y(i)=(v0*e_y(i)-vy(i))/t1;
     end
     
     %% 计算行人的位置
     ax=am_x+ar_x+ae_x+av_x;%1行n列，t时刻各行人粒子x方向的合加速度
     ay=am_y+ar_y+ae_y+av_y;%1行n列，t时刻各行人粒子y方向的合加速度
-    for i=1:n
-        ar = sqrt(ax(i)^2+ay(i)^2);
-        if ar>a_max
-            ax(i) = ax(i)*a_max/ar;
-            ay(i) = ay(i)*a_max/ar;
-        end
-    end   
+%     for i=1:n
+%         ar = sqrt(ax(i)^2+ay(i)^2);
+%         if ar>a_max
+%             ax(i) = ax(i)*a_max/ar;
+%             ay(i) = ay(i)*a_max/ar;
+%         end
+%     end   
     vx=vx+ax*dt; %计算下一时刻的x方向速度
     vy=vy+ay*dt; %计算下一时刻的y方向速度 
     for i=1:n %若下一时刻的速度大于v0，则将其缩小到v0
