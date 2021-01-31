@@ -25,8 +25,9 @@ wall_y = [wall_y1 wall_y2];
 %在空间内随机生成点用于模拟行人
 % person_x=zeros(1,100)+10;
 % person_y=2*rand(1,100);
-person_x=-30*rand(1,100)+30;
-person_y=1.5*rand(1,100)+0.25;
+% person_x=[0.3:0.3:30];
+% person_y=1.4*rand(1,100)+0.3;
+load personIni.mat
 exit_x=1000;%出口x坐标
 exit_y=1;%出口y坐标
 end_x = 100;%行人消失的点
@@ -157,8 +158,9 @@ for t=0:dt:T
     plot(wall_x2,wall_y2,'LineWidth',2,'Color','k');
 %     plot(wall_x,wall_y)
 %     hold on
-    plot(person_x,person_y,'.')
-    axis([-1 100 -1 3]);%设置显示范围
+    plot(person_x,person_y,'.','MarkerSize',15)
+    axis([-1 100 -1 3]);%设置显示范围:2×100m通道
+%     axis([-1 16 -1 16]);%设置显示范围:15×15m房间
     str_time=sprintf('疏散时间：%.2f',t);
     str_escape=sprintf('疏散人数：%.0f',sum_escape);
     text(max(xlim)*0.5-10,-0.5,str_time);
