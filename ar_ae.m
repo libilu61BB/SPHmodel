@@ -16,7 +16,7 @@ ar_x = zeros(1,n); %ar_x 排斥力加速度在x方向上的分量
 ar_y = zeros(1,n); %ar_y 排斥力加速度在y方向上的分量
 ae_x = zeros(1,n); %ae_x 挤压力加速度在x方向上的分量
 ae_y = zeros(1,n); %ae_y 挤压力加速度在y方向上的分量
-A = 500; %排斥力压强公式参数
+A = 125; %排斥力压强公式参数
 B = 0.001; %排斥力压强公式参数
 K = 1000; %挤压力压强公式参数
 h2 = 0.5; %计算障碍物排斥力所用的核半径
@@ -33,7 +33,7 @@ avg_Radius=mean(Radius);
 Rho_p2p=m_person*(4/(pi*h1^8))*(h1^2-4*avg_Radius^2)^3+m_person*(4/(pi*h1^2)); %人与人之间的临界密度
 Rho_p2w=m_person*(4/(pi*h2^8))*(h2^2-avg_Radius^2)^3+m_wall*(4/(pi*h2^2)); %人与障碍之间的临界密度
 for i=1:n
-    %-----------------计算行人与行人之间的加速度-----------------
+    %% 计算行人与行人之间的加速度
     for j=1:n
         if j==i
             continue;
@@ -68,7 +68,7 @@ for i=1:n
             end
         end
     end
-    %-----------------计算行人与障碍物之间的加速度-----------------
+    %% 计算行人与障碍物之间的加速度
     d = zeros(1,s);
     for j=1:s
         d(j)=sqrt((person_x(i)-wall_x(j))^2+(person_y(i)-wall_y(j))^2); %计算行人i与各个障碍物粒子之间的距离

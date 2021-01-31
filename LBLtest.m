@@ -1,7 +1,7 @@
 clear;
 %% 设置障碍物坐标、行人坐标和出口坐标
 % 原设置orz
-%15m×15m正方形空间，出口宽度2m
+% 15m×15m正方形空间，出口宽度2m
 % wall_x1=(15:-0.1:0);wall_y1=zeros(1,length(wall_x1));
 % wall_y2=(0:0.1:15);wall_x2=zeros(1,length(wall_y2));
 % wall_x3=(0:0.1:15);wall_y3=15*ones(1,length(wall_x3));
@@ -13,10 +13,10 @@ clear;
 % person_y = 9*rand(1,100)+1;
 % exit_x = 20;
 % exit_y = 7.5;
-% end_x = 13;
+% end_x = 15;
 
-% % 啊 让我们来康康2m×100m的走廊呢~
-wall_x1 = (-100:0.1:100);
+% 啊 让我们来康康2m×100m的走廊呢~
+wall_x1 = (-10:0.1:100);
 wall_y1 = zeros(1, length(wall_x1));
 wall_x2 = (-100:0.1:100);
 wall_y2 = 2 * ones(1, length(wall_x2));
@@ -25,7 +25,7 @@ wall_y = [wall_y1 wall_y2];
 %在空间内随机生成点用于模拟行人
 % person_x=zeros(1,100)+10;
 % person_y=2*rand(1,100);
-person_x=rand(1,100)+30;
+person_x=-30*rand(1,100)+30;
 person_y=1.5*rand(1,100)+0.25;
 exit_x=1000;%出口x坐标
 exit_y=1;%出口y坐标
@@ -38,7 +38,7 @@ h1=5;%计算密度和排斥力时使用的核半径
 Radius=0.25*ones(1,n);%假设行人的半径均为0.25m
 m_person=70;%行人的质量
 m_wall=500;%障碍物的质量
-a_max = 3; %行人的加速度上限
+a_max = 3; %行人的主动力加速度上限
 v0=2; %行人的期望速度值
 u=2; %粘度，用于计算粒子之间摩擦力产生的加速度
 vx=zeros(1,n);%行人速度在x方向上的分量，初始时刻为0
@@ -132,8 +132,6 @@ for t=0:dt:T
     %% 计算行人的位置
     ax=min(a_max,am_x+ar_x+ae_x+av_x);%1行n列，t时刻各行人粒子x方向的合加速度
     ay=min(a_max,am_y+ar_y+ae_y+av_y);%1行n列，t时刻各行人粒子y方向的合加速度
-    old_vx=vx;%计算dt时间内的x方向平均速度
-    old_vy=vy;%计算dt时间内的y方向平均速度
     vx=vx+ax*dt; %计算下一时刻的x方向速度
     vy=vy+ay*dt; %计算下一时刻的y方向速度
     for i=1:n %若下一时刻的速度大于v0，则将其缩小到v0
@@ -143,16 +141,8 @@ for t=0:dt:T
             vy(i)=vy(i)*v0/vr;
         end
     end
-%     for i=1:n
-%         if person_x(i)>100 %行人通过出口后沿x方向离开
-%             vx(i)=v0;
-%             vy(i)=0;
-%         end
-%     end
-    avg_vx=(old_vx+vx)/2;
-    avg_vy=(old_vy+vy)/2; 
-    person_x=person_x+avg_vx*dt; %使用dt时间段内的平均速度计算x方向的位移
-    person_y=person_y+avg_vy*dt; %使用dt时间段内的平均速度计算y方向的位移
+    person_x=person_x+vx*dt; %使用dt时间段内的平均速度计算x方向的位移
+    person_y=person_y+vy*dt; %使用dt时间段内的平均速度计算y方向的位移
 
     %% 绘制图像
     for i=1:n %统计逃离人数
